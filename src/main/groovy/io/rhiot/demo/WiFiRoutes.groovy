@@ -10,7 +10,7 @@ class WiFiRoutes extends RouteBuilder {
 
     @Override
     void configure() {
-        restConfiguration().component("netty4-http").host("0.0.0.0").port(8080);
+        restConfiguration().component('netty4-http').host('0.0.0.0').port(8080)
 
         rest('/wifi').get().route().to('kura-wifi:*/*').marshal().json(Jackson)
     }
