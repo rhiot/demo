@@ -2,7 +2,7 @@
 
 This is demo of Rhiot project.
 
-## What does this demo do?
+## What this demo is doing?
 
 Demo consist of two elements. Raspberry Pi gateway deployed into a field and data stream backend service deployed into a cloud.
  
