@@ -24,7 +24,8 @@ class SparkConfiguration {
     @Named(name = 'gpsCoordinatesRdd')
     JavaRDDLike gpsCoordinatesRdd() {
         def mongoPort = System.getProperty('mongo_port')
-        SparkMongos.mongoRdd(Bootstrap.bootstrap.beanRegistry().bean(JavaSparkContext.class).get(), 'localhost', mongoPort == null ? 27017 : mongoPort.toInteger(), 'cloudlet_document', 'GpsCoordinates')
+        def mongoHost = System.getProperty('mongo_host')
+        SparkMongos.mongoRdd(Bootstrap.bootstrap.beanRegistry().bean(JavaSparkContext.class).get(), mongoHost == null ? 'mongodb' : mongoHost, mongoPort == null ? 27017 : mongoPort.toInteger(), 'cloudlet_document', 'GpsCoordinates')
     }
 
     @Bean

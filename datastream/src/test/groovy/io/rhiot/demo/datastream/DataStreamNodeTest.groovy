@@ -35,6 +35,7 @@ class DataStreamNodeTest extends DataStreamTest {
 
     @Override
     protected void beforeDataStreamStarted() {
+        System.setProperty('mongo_host', 'localhost')
         System.setProperty('mongo_port', mongo.port() + '')
     }
 
@@ -50,7 +51,7 @@ class DataStreamNodeTest extends DataStreamTest {
 
     @Test
     void smokeTestMongoSparkTask() {
-        def mongoClient = new Mongo('mongodb', mongo.port())
+        def mongoClient = new Mongo('localhost', mongo.port())
         mongoClient.getDB('cloudlet_document').getCollection('GpsCoordinates').save(new BasicDBObject([client: 'foo']))
 
         def encodedResult = CamelBootInitializer.camelContext().createProducerTemplate().requestBody(amqp('spark.execute.gpsCoordinatesRdd.clientCoordinatesCount'), Json.encode([payload: 'foo']), String.class)
