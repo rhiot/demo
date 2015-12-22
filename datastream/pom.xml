@@ -18,8 +18,13 @@
     </licenses>
 
     <properties>
+        <docker.image.target>demo-datastream</docker.image.target>
+        <fatjar.mainClass>io.rhiot.datastream.engine.DataStream</fatjar.mainClass>
+
         <!-- Downgraded version of Jackson to match Spark 1.5.1. -->
         <jackson.version>2.4.4</jackson.version>
+
+        <docker-maven-plugin.version>0.13.5</docker-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -59,31 +64,24 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-eclipse-batch</artifactId>
-                        <version>${groovy-eclipse-batch.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-eclipse-compiler</artifactId>
-                        <version>${groovy-eclipse-compiler.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.codehaus.plexus</groupId>
-                        <artifactId>plexus-compiler-api</artifactId>
-                        <version>${plexus-compiler-api.version}</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <compilerId>groovy-eclipse-compiler</compilerId>
-                </configuration>
-            </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>empty-javadoc-jar</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                            <configuration>
+                                <forceCreation>true</forceCreation>
+                                <classifier>javadoc</classifier>
+                                <classesDirectory>${basedir}/javadoc</classesDirectory>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -98,7 +96,11 @@
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>io.rhiot.gateway.Gateway</mainClass>
+                                    <mainClass>${fatjar.mainClass}</mainClass>
+                                </transformer>
+                                <!-- Transformer below is needed by Akka to work in shaded jars. -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>reference.conf</resource>
                                 </transformer>
                             </transformers>
                             <filters>
@@ -116,11 +118,44 @@
                     </execution>
                 </executions>
             </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>attach-empty-sources</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                            <configuration>
+                                <forceCreation>true</forceCreation>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
             <plugin>
-                <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-eclipse-compiler</artifactId>
-                <version>${groovy-eclipse-compiler.version}</version>
-                <extensions>true</extensions>
+                <groupId>org.jolokia</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${docker-maven-plugin.version}</version>
+                <configuration>
+                    <images>
+                        <image>
+                            <name>rhiot/${docker.image.target}</name>
+                            <build>
+                                <from>rhiot/fatjar:0.1.2-SNAPSHOT</from>
+                                <tags>
+                                    <tag>latest</tag>
+                                    <tag>${project.version}</tag>
+                                </tags>
+                                <assembly>
+                                    <basedir>/jars</basedir>
+                                    <descriptorRef>artifact</descriptorRef>
+                                </assembly>
+                            </build>
+                        </image>
+                    </images>
+                </configuration>
             </plugin>
         </plugins>
     </build>
