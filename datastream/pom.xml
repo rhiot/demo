@@ -17,16 +17,42 @@
         </license>
     </licenses>
 
+    <properties>
+        <!-- Downgraded version of Jackson to match Spark 1.5.1. -->
+        <jackson.version>2.4.4</jackson.version>
+    </properties>
+
     <dependencies>
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+</dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.rhiot</groupId>
-            <artifactId>rhiot-gateway</artifactId>
+            <artifactId>rhiot-datastream-node</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.rhiot</groupId>
+                    <artifactId>rhiot-steroids-vertx</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Testing -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>com.google.truth</groupId>
+            <artifactId>truth</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.flapdoodle.embed</groupId>
+            <artifactId>de.flapdoodle.embed.mongo</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
