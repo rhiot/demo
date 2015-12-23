@@ -4,3 +4,6 @@ target/
 # IntelliJ Idea
 .idea/
 *.iml
+
+# ActiveMQ
+activemq-data
