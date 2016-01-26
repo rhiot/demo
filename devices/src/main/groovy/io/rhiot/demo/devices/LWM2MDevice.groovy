@@ -6,7 +6,7 @@ import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
 
 class LWM2MDevice {
 
-    def leshan = createVirtualLeshanClientTemplate(randomAlphabetic(10))
+    def leshan = createVirtualLeshanClientTemplate("myLovelyDevice")
 
     def start() {
         leshan.connect()
